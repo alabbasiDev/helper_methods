@@ -41,19 +41,24 @@ class CoreRandomProvider with AbstractRandomProvider {
 
 /// Generates a random integer where [from] <= [to] inclusive
 /// where 0 <= from <= to <= 999999999999999
-int randomBetween(int from, int to,
-    {AbstractRandomProvider provider = const DefaultRandomProvider()}) {
+int randomBetween(
+  int from,
+  int to, {
+  AbstractRandomProvider provider = const DefaultRandomProvider(),
+}) {
   if (from > to) {
     throw ArgumentError('$from cannot be > $to');
   }
   if (from < minSupportedInteger) {
     throw ArgumentError(
-        '|$from| is larger than the maximum supported $maxSupportedInteger');
+      '|$from| is larger than the maximum supported $maxSupportedInteger',
+    );
   }
 
   if (to > maxSupportedInteger) {
     throw ArgumentError(
-        '|$to| is larger than the maximum supported $maxSupportedInteger');
+      '|$to| is larger than the maximum supported $maxSupportedInteger',
+    );
   }
 
   var d = provider.nextDouble();
@@ -72,23 +77,36 @@ int _mapValue(double value, int min, int max) {
 /// Generates a random string of [length] with characters
 /// between ascii [from] to [to].
 /// Defaults to characters of ascii '!' to '~'.
-String randomString(int length,
-    {int from = asciiStart,
-      int to = asciiEnd,
-      AbstractRandomProvider provider = const DefaultRandomProvider()}) {
-  return String.fromCharCodes(List.generate(
-      length, (index) => randomBetween(from, to, provider: provider)));
+String randomString(
+  int length, {
+  int from = asciiStart,
+  int to = asciiEnd,
+  AbstractRandomProvider provider = const DefaultRandomProvider(),
+}) {
+  return String.fromCharCodes(
+    List.generate(
+      length,
+      (index) => randomBetween(from, to, provider: provider),
+    ),
+  );
 }
 
 /// Generates a random string of [length] with only numeric characters.
-String randomNumeric(int length,
-    {AbstractRandomProvider provider = const DefaultRandomProvider()}) =>
-    randomString(length,
-        from: numericStart, to: numericEnd, provider: provider);
+String randomNumeric(
+  int length, {
+  AbstractRandomProvider provider = const DefaultRandomProvider(),
+}) => randomString(
+  length,
+  from: numericStart,
+  to: numericEnd,
+  provider: provider,
+);
 
 /// Generates a random string of [length] with only alpha characters.
-String randomAlpha(int length,
-    {AbstractRandomProvider provider = const DefaultRandomProvider()}) {
+String randomAlpha(
+  int length, {
+  AbstractRandomProvider provider = const DefaultRandomProvider(),
+}) {
   var lowerAlphaWeight = provider.nextDouble();
   var upperAlphaWeight = provider.nextDouble();
   var sumWeight = lowerAlphaWeight + upperAlphaWeight;
@@ -96,16 +114,26 @@ String randomAlpha(int length,
   upperAlphaWeight /= sumWeight;
   var lowerAlphaLength = randomBetween(0, length, provider: provider);
   var upperAlphaLength = length - lowerAlphaLength;
-  var lowerAlpha = randomString(lowerAlphaLength,
-      from: lowerAlphaStart, to: lowerAlphaEnd, provider: provider);
-  var upperAlpha = randomString(upperAlphaLength,
-      from: upperAlphaStart, to: upperAlphaEnd, provider: provider);
+  var lowerAlpha = randomString(
+    lowerAlphaLength,
+    from: lowerAlphaStart,
+    to: lowerAlphaEnd,
+    provider: provider,
+  );
+  var upperAlpha = randomString(
+    upperAlphaLength,
+    from: upperAlphaStart,
+    to: upperAlphaEnd,
+    provider: provider,
+  );
   return randomMerge(lowerAlpha, upperAlpha);
 }
 
 /// Generates a random string of [length] with alpha-numeric characters.
-String randomAlphaNumeric(int length,
-    {AbstractRandomProvider provider = const DefaultRandomProvider()}) {
+String randomAlphaNumeric(
+  int length, {
+  AbstractRandomProvider provider = const DefaultRandomProvider(),
+}) {
   var alphaLength = randomBetween(0, length, provider: provider);
   var numericLength = length - alphaLength;
   var alpha = randomAlpha(alphaLength, provider: provider);
@@ -131,9 +159,6 @@ class ProviderError implements Exception {
   String toString() => 'nextDouble() = $value, only [0, 1) expected';
 }
 
-
-
-
 String randomEmail() {
   // Generate a random username
   // You can customize the length and characters as needed
@@ -145,13 +170,47 @@ String randomEmail() {
     'yahoo.com',
     'outlook.com',
     'protonmail.com',
-    'icloud.com'
+    'icloud.com',
   ];
 
   // Select a random domain from the list
-  final _random = Random();
-  String domain = domains[_random.nextInt(domains.length)];
+  final random = Random();
+  String domain = domains[random.nextInt(domains.length)];
 
   // Combine username and domain
   return '$username@$domain';
+}
+
+String randomMobileNumber() {
+  final Random random = Random();
+
+  // Common mobile prefixes in Yemen (MTN, Sabafon, Y, Yemen Mobile)
+  const List<String> prefixes = ['77', '78', '73', '71', '70'];
+
+  // 1. Select a random prefix
+  final String prefix = prefixes[random.nextInt(prefixes.length)];
+
+  // 2. Generate the remaining 7 digits
+  // To ensure it's always 7 digits, we generate a number between 1,000,000 and 9,999,999
+  final int restOfNumber =
+      1000000 + random.nextInt(9000000); // Ensures a 7-digit number
+
+  // 3. Combine them into a full number
+  return '$prefix${restOfNumber.toString()}';
+}
+
+String randomWebsite() {
+  final Random random = Random();
+
+  // Common Top-Level Domains (TLDs)
+  const List<String> tlds = ['.com', '.org', '.net', '.io', '.dev', '.co'];
+
+  // 1. Generate a random domain name (e.g., 8 characters long)
+  final String domainName = randomString(8);
+
+  // 2. Select a random TLD
+  final String tld = tlds[random.nextInt(tlds.length)];
+
+  // 3. Combine into a full URL
+  return 'https://$domainName$tld';
 }
