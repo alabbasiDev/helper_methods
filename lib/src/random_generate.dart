@@ -43,7 +43,7 @@ class CoreRandomProvider with AbstractRandomProvider {
 
 /// Generates a random integer where [from] <= [to] inclusive
 /// where 0 <= from <= to <= 999999999999999
-int randomBetween(
+int _randomBetween(
   int from,
   int to, {
   AbstractRandomProvider provider = const DefaultRandomProvider(),
@@ -88,7 +88,7 @@ String randomString(
   return String.fromCharCodes(
     List.generate(
       length,
-      (index) => randomBetween(from, to, provider: provider),
+      (index) => _randomBetween(from, to, provider: provider),
     ),
   );
 }
@@ -114,7 +114,7 @@ String randomAlpha(
   var sumWeight = lowerAlphaWeight + upperAlphaWeight;
   lowerAlphaWeight /= sumWeight;
   upperAlphaWeight /= sumWeight;
-  var lowerAlphaLength = randomBetween(0, length, provider: provider);
+  var lowerAlphaLength = _randomBetween(0, length, provider: provider);
   var upperAlphaLength = length - lowerAlphaLength;
   var lowerAlpha = randomString(
     lowerAlphaLength,
@@ -136,7 +136,7 @@ String randomAlphaNumeric(
   int length, {
   AbstractRandomProvider provider = const DefaultRandomProvider(),
 }) {
-  var alphaLength = randomBetween(0, length, provider: provider);
+  var alphaLength = _randomBetween(0, length, provider: provider);
   var numericLength = length - alphaLength;
   var alpha = randomAlpha(alphaLength, provider: provider);
   var numeric = randomNumeric(numericLength, provider: provider);
@@ -224,7 +224,7 @@ String randomWebsite() {
 /// [start]: The optional start date. Defaults to the Unix epoch.
 /// [end]: The optional end date. Defaults to the current time.
 
-DateTime randomFormattedDate({
+DateTime randomDateTime({
   DateTime? start,
   DateTime? end,
 }) {
@@ -242,4 +242,12 @@ DateTime randomFormattedDate({
 
   final randomDate = DateTime.fromMillisecondsSinceEpoch(randomMillis);
   return randomDate;
+}
+
+
+/// Generates a random integer between [min] and [max] (inclusive).
+int randomInt({int min = 0, int max = 100}) {
+  final random = Random();
+  // The formula is: min + nextInt(max - min + 1)
+  return min + random.nextInt(max - min + 1);
 }
