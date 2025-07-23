@@ -1,5 +1,8 @@
 import 'dart:math' show Random;
 
+import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
+
 const maxSupportedInteger = 999999999999999;
 const minSupportedInteger = 0;
 const asciiStart = 33;
@@ -181,7 +184,9 @@ String randomEmail() {
   return '$username@$domain';
 }
 
-String randomMobileNumber() {
+String? randomMobileNumber() {
+
+
   final Random random = Random();
 
   // Common mobile prefixes in Yemen (MTN, Sabafon, Y, Yemen Mobile)
@@ -199,7 +204,11 @@ String randomMobileNumber() {
   return '$prefix${restOfNumber.toString()}';
 }
 
-String randomWebsite() {
+String? randomWebsite() {
+
+  // if(kDebugMode)return null;
+
+
   final Random random = Random();
 
   // Common Top-Level Domains (TLDs)
@@ -213,4 +222,35 @@ String randomWebsite() {
 
   // 3. Combine into a full URL
   return 'https://$domainName$tld';
+}
+
+
+/// Generates a random date and returns it as a formatted String.
+///
+/// [start]: The optional start date. Defaults to the Unix epoch.
+/// [end]: The optional end date. Defaults to the current time.
+/// [formatter]: The optional [DateFormat] to format the output.
+/// Defaults to ISO 8601 format.
+String randomFormattedDate({
+  DateTime? start,
+  DateFormat? formatter,
+  DateTime? end,
+}) {
+  // Use provided dates or defaults.
+  final effectiveStart = start ?? DateTime(1970, 1, 1);
+  final effectiveEnd = end ?? DateTime.now();
+
+  // Calculate the range and generate a random offset.
+  final range = effectiveEnd.millisecondsSinceEpoch - effectiveStart.millisecondsSinceEpoch;
+  final randomMillisOffset = Random().nextInt(range);
+  final randomMillis = effectiveStart.millisecondsSinceEpoch + randomMillisOffset;
+
+  final randomDate = DateTime.fromMillisecondsSinceEpoch(randomMillis);
+
+  // Format the date using the provided formatter or default to ISO 8601.
+  if (formatter != null) {
+    return formatter.format(randomDate);
+  } else {
+    return randomDate.toIso8601String();
+  }
 }
