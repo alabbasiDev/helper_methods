@@ -1,6 +1,6 @@
 import 'dart:math' show Random;
 
-import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 const maxSupportedInteger = 999999999999999;
 const minSupportedInteger = 0;
@@ -224,26 +224,33 @@ String randomWebsite() {
 /// [start]: The optional start date. Defaults to the Unix epoch.
 /// [end]: The optional end date. Defaults to the current time.
 
-DateTime randomDateTime({
-  DateTime? start,
-  DateTime? end,
-}) {
-  // Use provided dates or defaults.
-  final effectiveStart = start ?? DateTime(1970, 1, 1);
-  final effectiveEnd = end ?? DateTime.now();
+DateTime? randomDateTime({DateTime? start, DateTime? end}) {
+  try {
+    // Set default range: 1970-01-01 to 10 years from now
+    start ??= DateTime(1970);
+    end ??= DateTime.now().add(const Duration(days: 365 * 10));
 
-  // Calculate the range and generate a random offset.
-  final range =
-      effectiveEnd.millisecondsSinceEpoch -
-      effectiveStart.millisecondsSinceEpoch;
-  final randomMillisOffset = Random().nextInt(range);
-  final randomMillis =
-      effectiveStart.millisecondsSinceEpoch + randomMillisOffset;
+    if (start.isAfter(end)) {
+      throw ArgumentError('start must be before end');
+    }
 
-  final randomDate = DateTime.fromMillisecondsSinceEpoch(randomMillis);
-  return randomDate;
+    final random = Random();
+    final startMicros = start.microsecondsSinceEpoch;
+    final endMicros = end.microsecondsSinceEpoch;
+    final range = endMicros - startMicros;
+
+    // Handle large ranges using double precision
+    final randomOffset = (range * random.nextDouble()).round();
+
+    return DateTime.fromMicrosecondsSinceEpoch(
+      startMicros + randomOffset,
+      isUtc: start.isUtc,
+    );
+  } catch (e) {
+    debugPrint('error in randomDateTime: ${e.toString()}');
+    return null;
+  }
 }
-
 
 /// Generates a random integer between [min] and [max] (inclusive).
 int randomInt({int min = 0, int max = 100}) {
